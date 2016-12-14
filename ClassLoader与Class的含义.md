@@ -20,3 +20,12 @@ Class类是什么，Class是描述.class文件内容的类，Class类描述了.c
 
 像是HTTP请求一样，它的内容仅仅是一堆文字，但是被描述成了Request, Response, ResponseBody等。
 
+Class类是什么。Java是面向对象的，几乎所有的类型都是以“类”的概念来描述。类是描述一类事物抽象概念，在Java中，使用class来具体描述类。在class中，可以有域、静态域、方法、构造方法、静态方法等等，所有的类都是相似的，都可以具有这些属性。这时，我们再次进行抽象，class也可以被认为是一类事物，使用class Class类描述。这就是Class.
+
+ClassLoader是什么。.class是以文件的方式存在，程序运行，必然需要将其加载到内存，这个过程就是使用ClassLoader来完成的。将.class文件描述的类加载到内存中则是它的功能。
+
+不过需要注意的是，上面的理解完全是以Java平台来说明的，Android平台下，字节码是以dex文件的形式存在的。无论是哪种平台，都是将存储在文件中的字节码加载到内存中。
+
+## 代码层面的理解
+
+参考[ClassLoader.git](https://github.com/MycroftWong/ClassLoader)

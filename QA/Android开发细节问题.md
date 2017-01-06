@@ -48,6 +48,10 @@
 
 - 如果不使用```ViewPager```, 那么自行控制```Fragment```的构造与生命周期保留，那么就可以避免这个问题。可以实现像微信、QQ这样，需要时才加载```Fragment```, 并且比较好的实现```Fragment```懒加载。
 
+### TODO
+
+实现使用和不使用```ViewPager```时的```Fragment```懒加载。即通常在主页使用```ViewPager```与否对```Fragment```的控制。
+
 ### 参考
 
 [Android-ProgressFragment](https://github.com/johnkil/Android-ProgressFragment)
@@ -62,4 +66,15 @@
 
 ## TODO
 
-RecyclerRefreshLayout 和 RecyclerView.Adapter 的统一封装总结。
+## 一些重复性的工作，如何封装
+
+使用最频繁的封装当然莫过于继承，在父类中提供一些通用方法，子类就不必在使用时再重新实现一遍。如显示/隐藏一个```ProgressDialog```, 每次再使用时都需要设置很多参数，而这些参数大部分是固定的，并且，除了构造对象时需要的一些操作，如隐藏，我们还有一些额外的方法，我们就可以把构造这个类的对象的代码在父类中封装成方法，使用时调用即可。
+
+但是如果是构造一个对象，对这个对象进行一些定制化的操作呢？如最近常用的[RecyclerRefreshLayout](https://github.com/dinuscxj/RecyclerRefreshLayout), 我想为我的项目统一设置一个刷新头部，那么再不改动源码的方式下怎么来封装。同样的，仍然是定义一个类，继承```RecyclerRefreshLayout```. 不过这里需要注意的是，我们不是继承使用```RecyclerRefreshLayout```的类，而是直接继承被使用的类。在编程时可能会陷入一种定向思维。同样的，可以封装```WebView```, 简单的浏览器实现都是一些很统一的设置, [BaseRecyclerViewAdapterHelper](https://github.com/CymChad/BaseRecyclerViewAdapterHelper), 设置风格相同的empty view, loading footer, loading failed footer等。
+
+- 第一种方式重点在于是**方法**， 封装的是方法，这些方法都是比较常用的，使用简单，但是其中的内容过多，那么就把多余的工作统一处理，只提供使用的接口
+- 第二种方式重点在于**构造**，封装的是对象，这个对象的构造是非常简单的，但是我们需要一些定制化的设定，那么就把这些定制化的设定在构造对象时就一并完成，实现一个子类，在子构造器中定制对象。
+
+问题：如果一些方法使用过于复杂，即使封装成简单的调用方法，在调用时必须按照一定的规范呢，如何封装比较合适？
+
+例如：统一为所有的```Activity```添加一个断网提示页面，当进入这个```Activity```时，如果断网，没有请求到这个数据，则显示断网提示页面，如果刷新得到数据，则永久隐藏断网提示页面，如果是需要多次刷新数据，那么势必会影响到断网提示页面的显示，所以即使封装成简单的调用方法，调用时，仍然需要非常多的逻辑，那么怎样处理（或是说服自己，使用起来就是这么麻烦）？

@@ -29,3 +29,37 @@
 
 常用的地方莫过于```Activity```和```Fragment```, 刷新界面在加载成功过一次之后应该隐藏或移除掉。
 
+
+## 斗鱼首页Fragment的处理
+
+目的：懒加载与构造新Fragment的平衡。
+
+原理：懒加载、Fragment数据保存机制。
+
+| 层 | 使用```ViewPager``` | 使用```Fragment```懒加载 | 分析 |
+|--|:--|:--|:--|
+| 第一层 | 否 | 是 | 需要时才构造```Fragment``` |
+| 第二层 | 是 | 是 | 便于滑动 |
+| 第三层 | 是 | 否 | 内存优化 |
+
+### 是否使用```ViewPager```
+
+- 使用```ViewPager```是最方便处理```Fragment```的方式，只要合理掌握其对```FragmentPagerAdapter```和```FragmentStatePagerAdapter```对```Fragment```的控制，那么开发将行云流水。而```ViewPager```的问题在于与```Fragment```懒加载的某些冲突，如果使用懒加载，那么实际上，```ViewPager```是一次性保留所有可能被加载的```Fragment```, 这样实际上非常耗用内存。
+
+- 如果不使用```ViewPager```, 那么自行控制```Fragment```的构造与生命周期保留，那么就可以避免这个问题。可以实现像微信、QQ这样，需要时才加载```Fragment```, 并且比较好的实现```Fragment```懒加载。
+
+### 参考
+
+[Android-ProgressFragment](https://github.com/johnkil/Android-ProgressFragment)
+
+[Fragment全解析系列（一）：那些年踩过的坑](http://www.jianshu.com/p/d9143a92ad94#)
+
+[Fragment全解析系列（二）：正确的使用姿势](http://www.jianshu.com/p/fd71d65f0ec6#)
+
+[http://www.jianshu.com/p/38f7994faa6b](Fragment之我的解决方案：Fragmentation)
+
+[Android4.0-Fragment框架实现方式剖析（一）](http://blog.csdn.net/weihan1314/article/details/7997421)
+
+## TODO
+
+RecyclerRefreshLayout 和 RecyclerView.Adapter 的统一封装总结。

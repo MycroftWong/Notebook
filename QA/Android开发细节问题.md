@@ -78,3 +78,19 @@
 问题：如果一些方法使用过于复杂，即使封装成简单的调用方法，在调用时必须按照一定的规范呢，如何封装比较合适？
 
 例如：统一为所有的```Activity```添加一个断网提示页面，当进入这个```Activity```时，如果断网，没有请求到这个数据，则显示断网提示页面，如果刷新得到数据，则永久隐藏断网提示页面，如果是需要多次刷新数据，那么势必会影响到断网提示页面的显示，所以即使封装成简单的调用方法，调用时，仍然需要非常多的逻辑，那么怎样处理（或是说服自己，使用起来就是这么麻烦）？
+
+## 参考
+
+[ Android中clipChildren属性的用法](http://blog.csdn.net/flymoon1201/article/details/44646473)
+
+[ 一个卡片式的ViewPager，带你玩转ViewPager的PageTransformer属性！](http://blog.csdn.net/u012702547/article/details/52334161)
+
+[clipToPadding和clipChildren](http://blog.csdn.net/litefish/article/details/52471273)
+
+[viewpager实现画廊(一屏多个Fragment)效果](http://www.trinea.cn/android/viewpager-multi-fragment-effect/)
+
+[android:clipToPadding和android:clipChildren](http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0317/2613.html)
+
+[Android布局属性android:clipToPadding的UI设计妙用](http://blog.csdn.net/zhangphil/article/details/48680055)
+
+[ViewPagerCards](https://github.com/rubensousa/ViewPagerCards)

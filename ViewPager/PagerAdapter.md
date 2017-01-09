@@ -1,4 +1,4 @@
-# PagerAdapter 分析
+# PagerAdapter分析与Fragment懒加载的几种实现
 
 相信使用过```ViewPager```的人都知道它的常规使用方法，当然用得最多的仍然是```FragmentPagerAdapter```和```FragmentStatePagerFragment```，但是会用不一定用得好，从刚开始开发APP到现在，我也用过无数遍，但是最近为了优化界面，查看源码才发现之前自己“不会用”。
 
@@ -70,7 +70,7 @@
 - ```getCount()```
 - ```isViewFromObject(View, Object)```
 
-相对使用```AdapterView```的adapter, 使用```PagerAdapter```更为简单。```ViewPager```使用回调来指定更新的步骤，而不是直接使用循环机制。如果期望实现```View```的回收，那么通过```PagerAdapter```也是可以实现的，或者使用更加复杂的方法来组织每一页的```View```, 例如```Fragment```事务那样，使用一个```Fragment```来管理```View```.
+相对使用```AdapterView```的adapter, 使用```PagerAdapter```更为简单。```ViewPager```使用回调来指定操作的步骤，而不是直接使用循环回收机制。如果期望实现回收```View```，那么通过```PagerAdapter```也是可以实现的，或者使用更加复杂的方法来组织每一页的```View```, 例如```Fragment```事务那样，使用一个```Fragment```来管理```View```.
 
 **ViewPager**使用一个键对象来关联每一页，而不是管理```View```。这个键用于追踪和唯一标识在adapter中独立位置中的一页。调用方法```startUpdate(ViewGroup)```表明```ViewPager```中的内容需要更改。
 
@@ -80,7 +80,7 @@
 
 一个非常简单的方式就是使用每页视图作为key来关联它们自己，在方法```instantiateItem(ViewGroup, int)```中创建和添加它们到```ViewGroup```之后，返回该页视图。与之相匹配的方法```destroyItem(ViewGroup, int, Object)```实现从```ViewGroup```中移除视图。当然必须在```isViewFromObject(View, Object)```中这样实现：```return view == object;```.
 
-**PagerAdapter**支持数据改变，数据改变必须在主线程中调用，并在数据改变完成后调用方法```notifyDataSetChanged()```, 和```AdapterView```中派生自```BaseAdapter```相似。一次数据的改变可能关联着页面的添加、移除、或改变位置。```ViewPager```将根据adapter中实现```getItemPosition(Object)```方法返回的结果，来判断是否保留当前已经构造的活动页面（即重用，而不完全自行构造）。
+**PagerAdapter**支持数据改变时刷新界面，数据改变必须在主线程中调用，并在数据改变完成后调用方法```notifyDataSetChanged()```, 和```AdapterView```中派生自```BaseAdapter```相似。一次数据的改变可能关联着页面的添加、移除、或改变位置。```ViewPager```将根据adapter中实现```getItemPosition(Object)```方法返回的结果，来判断是否保留当前已经构造的活动页面（即重用，而不完全自行构造）。
 
 ## 原理详解
 
@@ -105,27 +105,29 @@
 **getItemPosition(Object)**: 用于数据刷新时的页面处理方式。返回值包括三类：```POSITION_UNCHANGED```表示位置没有变化，即在添加或移除一页或多页之后该位置的页面保持不变，可以用于一个```ViewPager```中最后几页的添加或移除时，保持前几页仍然不变；```POSITION_NONE```，表示当前页不再作为```ViewPager```的一页数据，将被销毁，可以用于无视```View```缓存的刷新；根据传过来的参数```Object```来判断这个key所指定的新的位置，如总共有5个页面，我们想交换第0个和第4个的页面，那么在返回时，可以参考下面的代码。
 
 ```Java
-    private List<Object> mItems = new ArrayList<>();
+// ...
+private List<Object> mItems = new ArrayList<>();
 
-    {
-        for (int i = 0; i < 5; i++) {
-            mItems.add(null);
-        }
+{
+    for (int i = 0; i < 5; i++) {
+        mItems.add(null);
     }
+}
 
-    @Override
-    public int getItemPosition(Object object) {
-        int position = mItems.indexOf(object);
-        if (position == 0) {
-            return 4;
-        } else if (position == 4) {
-            return 0;
-        } else {
-            // 下面两种都可以
+@Override
+public int getItemPosition(Object object) {
+    int position = mItems.indexOf(object);
+    if (position == 0) {
+        return 4;
+    } else if (position == 4) {
+        return 0;
+    } else {
+        // 下面两种都可以
 //            return POSITION_UNCHANGED;
-            return position;
-        }
+        return position;
     }
+}
+// ...
 ```
 
 **saveState()**: 保存页面状态。用得不多，见到的也是在```FragmentStatePagerAdapter```中使用，有不同于```FragmentPagerAdapter```的对于```Fragment```的管理机制。当然我们也可以使用这个来优化我们自己的```PagerAdapter```, 如主页Banner.
@@ -638,3 +640,9 @@ public abstract class BaseLazyFragment extends Fragment {
 关于这一点，已经有了开源项目，可以参考[FragmentNavigator](https://github.com/Aspsine/FragmentNavigator)
 
 使用示例可以参考[FragmentApp](https://github.com/MycroftWong/FragmentApp)
+
+## 参考
+
+[FragmentNavigator](https://github.com/Aspsine/FragmentNavigator)
+
+[如何高效的使用ViewPager，以及FragmentPagerAdapter与FragmentStatePagerAdapter的区别](http://www.jianshu.com/p/25a02f5a15b3)

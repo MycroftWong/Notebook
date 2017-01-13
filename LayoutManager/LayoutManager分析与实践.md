@@ -1019,4 +1019,10 @@ public final class FlowLayoutManager extends RecyclerView.LayoutManager {
 ```
 
 
+## 参考文章
 
+[打造属于你的LayoutManager](http://blog.csdn.net/u014768339/article/details/51643798)
+
+[【Android】掌握自定义LayoutManager(一) 系列开篇 常见误区、问题、注意事项，常用API。](http://blog.csdn.net/zxt0601/article/details/52948009)
+
+[【Android】掌握自定义LayoutManager(二) 实现流式布局](http://blog.csdn.net/zxt0601/article/details/52956504)

@@ -42,9 +42,9 @@
 
 这里我们先讨论一下在```LayoutManager```需要怎么处理这些工作。
 
-- 测量：实际上是在```Adapter```中构造```View```时的工作，只需要获取即可
+- 测量：获取到`View`后，需要对其进行测量，因为复用的原因，所以这一步必须做
 - 布局：对获取到的```View```根据要求放置在界面上，同时需要考虑滑动
-- 滑动：滑动的处理是由```RecyclerView```来完成的，```LayoutManager```需要处理的是决定滑动方向和修正滑动距离
+- 滑动：touch的处理是由```RecyclerView```来完成的，```LayoutManager```需要处理的是决定滑动方向和修正滑动距离
 - 回收```View```：关于如何回收```View```都是放在```Recycler```中的，```LayoutManager```需要告诉那些```View```需要被回收
 
 
@@ -52,11 +52,43 @@
 
 ### 测量
 
-实际的测量工作其实是放在```View```构造阶段的，即```Adapter```中，所以在获取到```View```时，就可以直接获取到该```View```的尺寸。不过另外需要注意的是```View```的margin尺寸。
+获取到```View```的过程完全是交由`Recycler`来完成，`LinearLayoutManager`并不关心它是重新构造，还是从缓存中获取的，然后对其测量即可。不过另外需要注意的是```View```的margin尺寸。
 
-下面两个方法是计算一个child view布局时所占用的空间尺寸，考虑到了margin:
+下面是测量方法和另外两个计算一个child view布局时所占用的空间尺寸的方法，考虑到了margin:
 
 ```Java
+/**
+ * Measure a child view using standard measurement policy, taking the padding
+ * of the parent RecyclerView, any added item decorations and the child margins
+ * into account.
+ *
+ * <p>If the RecyclerView can be scrolled in either dimension the caller may
+ * pass 0 as the widthUsed or heightUsed parameters as they will be irrelevant.</p>
+ *
+ * @param child Child view to measure
+ * @param widthUsed Width in pixels currently consumed by other views, if relevant
+ * @param heightUsed Height in pixels currently consumed by other views, if relevant
+ */
+public void measureChildWithMargins(View child, int widthUsed, int heightUsed) {
+    final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
+    final Rect insets = mRecyclerView.getItemDecorInsetsForChild(child);
+    widthUsed += insets.left + insets.right;
+    heightUsed += insets.top + insets.bottom;
+
+    final int widthSpec = getChildMeasureSpec(getWidth(), getWidthMode(),
+            getPaddingLeft() + getPaddingRight() +
+                    lp.leftMargin + lp.rightMargin + widthUsed, lp.width,
+            canScrollHorizontally());
+    final int heightSpec = getChildMeasureSpec(getHeight(), getHeightMode(),
+            getPaddingTop() + getPaddingBottom() +
+                    lp.topMargin + lp.bottomMargin + heightUsed, lp.height,
+            canScrollVertically());
+    if (shouldMeasureChild(child, widthSpec, heightSpec, lp)) {
+        child.measure(widthSpec, heightSpec);
+    }
+}
+
 /**
  * 获取 child view 横向上需要占用的空间，margin计算在内
  *
@@ -83,7 +115,6 @@ private int getDecoratedMeasurementVertical(View view) {
 ```
 
 因为```ItemDecoration```的存在，所以获取尺寸时使用的是```getDecoratedMeasuredWidth(View)```和```getDecoratedMeasuredHeight(View)```, 将```ItemDecoration```考虑在内了。
-
 
 ### 布局
 
@@ -1018,6 +1049,7 @@ public final class FlowLayoutManager extends RecyclerView.LayoutManager {
 }
 ```
 
+源代码地址：[FlowLayoutManager](https://github.com/MycroftWong/FlowLayoutManager)
 
 ## 参考文章
 
